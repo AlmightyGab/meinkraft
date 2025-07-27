@@ -1,25 +1,38 @@
+#include <iostream>
+#include <thread>
+
 #include <ftxui/dom/elements.hpp>
 #include <ftxui/screen/screen.hpp>
 
 int main() {
   using namespace ftxui;
 
-  // Create a simple document with three text elements.
-  Element document = hbox({
-    text("left")   | border,
-    text("middle") | border | flex,
-    text("right")  | border,
-  });
-
   // Create a screen with full width and height fitting the document.
   auto screen = Screen::Create(
     Dimension::Full(),       // Width
-    Dimension::Full() // Height
+    Dimension::Full()        // Height
   );
 
-  // Render the document onto the screen.
-  Render(screen, document);
+  const int dx = screen.dimx();
+  const int dy = screen.dimy();
+  int x = 0;
+  int y = 0;
+  int cpt = 0;
 
-  // Print the screen to the console.
-  screen.Print();
+  while (true)
+  {
+    screen.Clear();
+    x = ++x % dx;
+    if (x == 0 && cpt != 0)
+    {
+      y = y + 1;
+    }
+    auto& pixel = screen.PixelAt(x, y);
+    pixel.character = U'X';
+    screen.Print();
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    auto s = screen.ResetPosition();
+    std::cout << s << std::flush;
+    ++cpt;
+  }
 }
